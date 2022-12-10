@@ -48,6 +48,8 @@ interface ExternalModelRelationContract
 
     /**
      * Getting if related models should be retrieved as collection or single model.
+     * 
+     * @return bool
      */
     public function isMultiple(): bool;
 
