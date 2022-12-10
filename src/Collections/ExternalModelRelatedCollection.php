@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Traits\Collections\IsExternalModelRelatedCollection;
 
 /**
- * A custom model collection related to trustup users.
+ * Collection able to handle external relations.
  */
 class ExternalModelRelatedCollection extends EloquentCollection implements ExternalModelRelatedCollectionContract
 {

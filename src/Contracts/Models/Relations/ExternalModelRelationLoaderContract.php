@@ -29,14 +29,14 @@ interface ExternalModelRelationLoaderContract
     /**
      * Getting configured relations.
      * 
-     * @return Collection<int ExternalModelRelationContract>
+     * @return Collection<int, ExternalModelRelationContract>
      */
     public function getRelations(): Collection;
 
     /**
      * Setting related models.
      * 
-     * @param Collection<int, Model>
+     * @param Collection<int, Model> $models
      * @return static
      */
     public function setModels(Collection $models): ExternalModelRelationLoaderContract;

@@ -7,9 +7,32 @@ use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations
 
 class ExternalModelRelation implements ExternalModelRelationContract
 {
+    /**
+     * Model property name where external model ids are stored.
+     * 
+     * @return string
+     */
     protected string $idsProperty;
+
+    /**
+     * Model property name where external models are stored.
+     * 
+     * @return string
+     */
     protected string $modelsProperty;
+
+    /**
+     * Tetting if related models should be retrieved as collection or single model.
+     * 
+     * @return string
+     */
     protected bool $multiple = true;
+
+    /**
+     * Callback able to load external models.
+     * 
+     * @return string
+     */
     protected ExternalModelRelationLoadingCallbackContract $callback;
 
     public function getIdsProperty(): string
@@ -17,7 +40,6 @@ class ExternalModelRelation implements ExternalModelRelationContract
         return $this->idsProperty;
     }
     
-    /** @return static */
     public function setIdsProperty(string $property): ExternalModelRelationContract
     {
         $this->idsProperty = $property;
@@ -40,7 +62,6 @@ class ExternalModelRelation implements ExternalModelRelationContract
         return str_replace("_id", "", $this->idsProperty);
     }
 
-    /** @return static */
     public function setModelsProperty(string $property): ExternalModelRelationContract
     {
         $this->modelsProperty = $property;
@@ -48,7 +69,6 @@ class ExternalModelRelation implements ExternalModelRelationContract
         return $this;
     }
 
-    /** @return static */
     public function setMultiple(bool $isMultiple = true): ExternalModelRelationContract
     {
         $this->multiple = $isMultiple;

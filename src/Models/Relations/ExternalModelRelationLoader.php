@@ -4,19 +4,25 @@ namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Models\Relations\Use
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Api\Endpoints\Auth\UserEndpointContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationLoaderContract;
 
 class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
 {
-    /** @var Collection<int, ExternalModelRelationContract> */
+    /**
+     * Configured relations.
+     * 
+     * @var Collection<int, ExternalModelRelationContract>
+     */
     protected Collection $relations;
 
-    /** @var Collection<int, Model> */
+    /**
+     * Related models where configured relations should be loaded.
+     * 
+     * @var Collection<int, Model>
+     */
     protected Collection $models;
 
-    /** @return static */
     public function addRelation(ExternalModelRelationContract $relation): ExternalModelRelationLoaderContract
     {
         $this->getRelations()->push($relation);
@@ -24,12 +30,6 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
         return $this;
     }
 
-    /**
-     * Loading several external relations at once.
-     * 
-     * @param Collection<int, ExternalModelRelationContract> $relations
-     * @return static
-     */
     public function addRelations(Collection $relations): ExternalModelRelationLoaderContract
     {
         $this->getRelations()->push(...$relations);
@@ -37,10 +37,6 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
         return $this;
     }
 
-    /**
-     * @param Collection<int, Model>
-     * @return static
-     */
     public function setModels(Collection $models): ExternalModelRelationLoaderContract
     {
         $this->models = $models;
@@ -48,34 +44,36 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
         return $this;
     }
 
-    /** @return static */
     public function load(): ExternalModelRelationLoaderContract
     {
         $this->models->each(fn (Model $model) =>
             $this->getRelations()->each(fn (ExternalModelRelationContract $relation) =>
-                $this->setModelRelation($model, $relation)    
+                $this->setModelRelationExternalModels($model, $relation)    
             )
         );
 
         return $this;
     }
 
-    /** @return Collection<int ExternalModelRelationContract> */
     public function getRelations(): Collection
     {
         return $this->relations ??
             $this->relations = collect();
     }
 
-    /**
-     * @return Collection<int, Model>
-     */
     public function getModels(): Collection
     {
         return $this->models;
     }
 
-    protected function setModelRelation(Model $model, ExternalModelRelationContract $relation): void
+    /**
+     * Setting given model external models for given relation
+     * 
+     * @param Model $model
+     * @param ExternalModelRelationContract $relation
+     * @return void
+     */
+    protected function setModelRelationExternalModels(Model $model, ExternalModelRelationContract $relation): void
     {
         $externalModels = $this->getModelRelationIdentifiers($model, $relation)
             ->reduce(fn (Collection $externalModels, int|string $externalModelIdentifier) =>
@@ -90,7 +88,13 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
             : $externalModels->first();
     }
 
-    /** @return Collection<int, int|string> */
+    /**
+     * Getting external model identifiers for given model and relation.
+     * 
+     * @param Model $model
+     * @param ExternalModelRelationContract $relation
+     * @return Collection<int, int|string>
+     */
     protected function getModelRelationIdentifiers(Model $model, ExternalModelRelationContract $relation): Collection
     {
         $ids = $model->{$relation->getIdsProperty()};
@@ -107,11 +111,12 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
     }
 
     /**
-     * Getting users id map.
+     * Getting external models identifiers map matching given relation.
      * 
-     * Key is user id and value is boolean.
+     * Key is identifier and value is boolean.
      * 
-     * @return Collection<int, bool>
+     * @param ExternalModelRelationContract $relation
+     * @return Collection<string|int, bool>
      */
     protected function getExternalModelIdsMap(ExternalModelRelationContract $relation): Collection
     {
@@ -128,6 +133,14 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
         );
     }
 
+    /**
+     * Getting external models map matching given relation.
+     * 
+     * Key is external model identifier and value is actual external model.
+     * 
+     * @param ExternalModelRelationContract $relation
+     * @return Collection<string|int, ExternalModelContract>
+     */
     protected function getExternalModelsMap(ExternalModelRelationContract $relation): Collection
     {
         if (isset($this->{$relation->getModelsProperty()})) return $this->{$relation->getModelsProperty()};
