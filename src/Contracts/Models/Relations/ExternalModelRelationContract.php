@@ -22,21 +22,6 @@ interface ExternalModelRelationContract
      * @return static
      */
     public function setIdsProperty(string $property): ExternalModelRelationContract;
-    
-    /**
-     * Getting model property name where external models are stored.
-     * 
-     * @return string
-     */
-    public function getModelsProperty(): string;
-
-    /**
-     * Setting model property name where external models are stored.
-     * 
-     * @param string $property
-     * @return static
-     */
-    public function setModelsProperty(string $property): ExternalModelRelationContract;
 
     /**
      * Setting if related models should be retrieved as collection or single model.
@@ -52,6 +37,21 @@ interface ExternalModelRelationContract
      * @return bool
      */
     public function isMultiple(): bool;
+
+    /**
+     * Getting relation name.
+     * 
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
+     * Setting relation name.
+     * 
+     * @param string $name
+     * @return ExternalModelRelationContract
+     */
+    public function setName(string $name): ExternalModelRelationContract;
 
     /**
      * Getting callback able to load external models.

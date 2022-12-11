@@ -15,18 +15,18 @@ class ExternalModelRelation implements ExternalModelRelationContract
     protected string $idsProperty;
 
     /**
-     * Model property name where external models are stored.
-     * 
-     * @return string
-     */
-    protected string $modelsProperty;
-
-    /**
      * Tetting if related models should be retrieved as collection or single model.
      * 
      * @return string
      */
     protected bool $multiple = true;
+
+    /**
+     * Relation name.
+     * 
+     * @return string
+     */
+    protected string $name;
 
     /**
      * Callback able to load external models.
@@ -46,27 +46,27 @@ class ExternalModelRelation implements ExternalModelRelationContract
 
         return $this;
     }
-    
-    public function getModelsProperty(): string
+
+    public function setName(string $name): ExternalModelRelationContract
     {
-        return $this->modelsProperty ??
-            $this->modelsProperty = $this->formatModelsProperty();
+        $this->name = $name;
+
+        return $this;
+    }
+    
+    public function getName(): string
+    {
+        return $this->name ??
+            $this->name = $this->formatName();
     }
 
-    protected function formatModelsProperty(): string
+    protected function formatName(): string
     {
         if ($this->isMultiple()):
             return Str::plural(str_replace("_ids", "", $this->idsProperty));
         endif;
 
         return str_replace("_id", "", $this->idsProperty);
-    }
-
-    public function setModelsProperty(string $property): ExternalModelRelationContract
-    {
-        $this->modelsProperty = $property;
-
-        return $this;
     }
 
     public function setMultiple(bool $isMultiple = true): ExternalModelRelationContract

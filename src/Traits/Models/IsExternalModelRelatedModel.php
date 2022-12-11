@@ -10,6 +10,7 @@ use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalM
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Collections\ExternalModelRelatedCollectionContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
+use Illuminate\Database\Eloquent\Casts\AsCollection;
 
 /**
  * Handling external relations.
@@ -17,6 +18,34 @@ use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations
 trait IsExternalModelRelatedModel
 {
     use IsExternalModelRelated;
+
+    public function initializeIsExternalModelRelatedModel()
+    {
+        $this->getExternalRelationsCollection($this->getExternalRelations())
+            ->each(function (ExternalModelRelationContract $relation) {
+                $this->fillable[] = $relation->getIdsProperty();
+                if (!$relation->isMultiple()) return;
+
+                $this->casts[$relation->getIdsProperty()] = AsCollection::class;
+            });
+    }
+
+    /**
+     * Getting external relation names.
+     * 
+     * @return array<int, string>
+     */
+    public function getExternalRelationNames(): array
+    {
+        return [];
+    }
+
+    /**
+     * Loaded external relations.
+     * 
+     * @var array<int, string>
+     */ 
+    protected array $externalRelations = [];
 
     /**
      * Getting external models relation based on given relation name.
@@ -47,18 +76,18 @@ trait IsExternalModelRelatedModel
      * 
      * @param ExternalModelRelationLoadingCallbackContract $callback Callback able to load related models
      * @param string $idProperty Model property containing related id.
-     * @param string $externalModelProperty Model property where related user should be stored.
+     * @param ?string $name Name where related model should be stored.
      * @return ExternalModelRelationContract
      */
-    public function belongsToExternalModel(ExternalModelRelationLoadingCallbackContract $callback, string $idProperty, string $externalModelProperty = null): ExternalModelRelationContract
+    public function belongsToExternalModel(ExternalModelRelationLoadingCallbackContract $callback, string $idProperty, ?string $name = null): ExternalModelRelationContract
     {
         $relation = $this->newExternalModelRelation()
             ->setIdsProperty($idProperty)
             ->setMultiple(false)
             ->setLoadingCallback($callback);
 
-        return $externalModelProperty ?
-            $relation->setModelsProperty($externalModelProperty)
+        return $name ?
+            $relation->setName($name)
             : $relation;
     }
 
@@ -67,17 +96,17 @@ trait IsExternalModelRelatedModel
      * 
      * @param ExternalModelRelationLoadingCallbackContract $callback Callback able to load related models
      * @param string $idsProperty Model property containing external model ids.
-     * @param string $externalModelsProperty Model property where related users should be stored.
+     * @param ?string $name Name where related models should be stored.
      * @return ExternalModelRelationContract
      */
-    public function hasManyExternalModels(ExternalModelRelationLoadingCallbackContract $callback, string $idsProperty, string $externalModelsProperty = null): ExternalModelRelationContract
+    public function hasManyExternalModels(ExternalModelRelationLoadingCallbackContract $callback, string $idsProperty, ?string $name = null): ExternalModelRelationContract
     {
         $relation = $this->newExternalModelRelation()->setIdsProperty($idsProperty)
             ->setMultiple(true)
             ->setLoadingCallback($callback);
 
-        return $externalModelsProperty ?
-            $relation->setModelsProperty($externalModelsProperty)
+        return $name ?
+            $relation->setName($name)
             : $relation;
     }
 
@@ -92,7 +121,7 @@ trait IsExternalModelRelatedModel
         /** @var ExternalModelRelationContract */
         $relation = $this->{$relationName}();
 
-        [$error] = Helpers::try(fn () => $this->{$relation->getModelsProperty()});
+        [$error] = Helpers::try(fn () => $this->externalRelations[$relation->getName()]);
 
         return !$error;
     }
@@ -151,7 +180,7 @@ trait IsExternalModelRelatedModel
      */
     protected function getExternalModelRelationModels(ExternalModelRelationContract $relation): mixed
     {
-        [$error, $value] = Helpers::try(fn () => $this->{$relation->getModelsProperty()});
+        [$error, $value] = Helpers::try(fn () => $this->externalRelations[$relation->getName()]);
 
         if (!$error):
             return $value;
@@ -159,6 +188,6 @@ trait IsExternalModelRelatedModel
 
         $this->loadExternalModelRelation($relation);
 
-        return $this->{$relation->getModelsProperty()};
+        return $this->externalRelations[$relation->getName()];
     }
 }

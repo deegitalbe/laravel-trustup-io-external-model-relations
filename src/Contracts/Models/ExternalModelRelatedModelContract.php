@@ -13,6 +13,13 @@ use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations
 interface ExternalModelRelatedModelContract
 {
     /**
+     * Getting external relation names.
+     * 
+     * @return array<int, string>
+     */
+    public function getExternalRelationNames(): array;
+
+    /**
      * Getting external models relation based on given relation name.
      * 
      * You can expect ExternalModelContract|null for non-multiple relation or Collection<int, ExternalModelContract> for multiple relation.
@@ -35,20 +42,20 @@ interface ExternalModelRelatedModelContract
      * 
      * @param ExternalModelRelationLoadingCallbackContract $callback Callback able to load related models
      * @param string $idProperty Model property containing related id.
-     * @param string $externalModelProperty Model property where related user should be stored.
+     * @param ?string $name Name where related model should be stored.
      * @return ExternalModelRelationContract
      */
-    public function belongsToExternalModel(ExternalModelRelationLoadingCallbackContract $callback, string $idProperty, string $externalModelProperty = null): ExternalModelRelationContract;
+    public function belongsToExternalModel(ExternalModelRelationLoadingCallbackContract $callback, string $idProperty, ?string $name = null): ExternalModelRelationContract;
 
      /**
      * Creating a new has many external models relation.
      * 
      * @param ExternalModelRelationLoadingCallbackContract $callback Callback able to load related models
      * @param string $idsProperty Model property containing external model ids.
-     * @param string $externalModelsProperty Model property where related users should be stored.
+     * @param ?string $name Name where related models should be stored.
      * @return ExternalModelRelationContract
      */
-    public function hasManyExternalModels(ExternalModelRelationLoadingCallbackContract $callback, string $idsProperty, string $externalModelsProperty = null): ExternalModelRelationContract;
+    public function hasManyExternalModels(ExternalModelRelationLoadingCallbackContract $callback, string $idsProperty, ?string $name = null): ExternalModelRelationContract;
 
     /**
      * Telling if given external relation is loaded.

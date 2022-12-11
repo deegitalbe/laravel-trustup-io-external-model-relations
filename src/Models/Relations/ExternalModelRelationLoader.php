@@ -83,7 +83,7 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
                 collect()
             );
         
-        $model->{$relation->getModelsProperty()} = $relation->isMultiple() ?
+        $model->externalRelations[$relation->getName()] = $relation->isMultiple() ?
             $externalModels
             : $externalModels->first();
     }
@@ -143,11 +143,11 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
      */
     protected function getExternalModelsMap(ExternalModelRelationContract $relation): Collection
     {
-        if (isset($this->{$relation->getModelsProperty()})) return $this->{$relation->getModelsProperty()};
+        if (isset($this->{$relation->getName()})) return $this->{$relation->getName()};
 
         $models = $relation->getLoadingCallback()->load($this->getExternalModelIdsMap($relation)->keys());
 
-        return $this->{$relation->getModelsProperty()} = $models->reduce(fn (Collection $map, ExternalModelContract $model) =>
+        return $this->{$relation->getName()} = $models->reduce(fn (Collection $map, ExternalModelContract $model) =>
             tap($map, fn () =>
                 $map[$model->getExternalRelationIdentifier()] = $model
             ),

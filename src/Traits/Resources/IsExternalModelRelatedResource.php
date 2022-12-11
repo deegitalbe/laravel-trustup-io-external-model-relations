@@ -16,7 +16,7 @@ trait IsExternalModelRelatedResource
      * @param string $relationName Relation name to potentially retrieve
      * @return MissingValue|Collection<int, ExternalModelContract>|?ExternalModelContract
      */
-    public function whenExternalModelsLoaded(string $relationName): mixed
+    public function whenExternalRelationLoaded(string $relationName): mixed
     {
         return $this->resource->externalRelationLoaded($relationName)
             ? $this->resource->getExternalModels($relationName)
