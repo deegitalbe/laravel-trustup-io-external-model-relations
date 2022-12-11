@@ -1,11 +1,11 @@
 <?php
-namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Models\Relations\User;
+namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Models\Relations;
 
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationContract;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationLoaderContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoaderContract;
 
 class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
 {

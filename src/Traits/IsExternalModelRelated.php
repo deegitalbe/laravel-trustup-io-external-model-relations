@@ -2,8 +2,8 @@
 namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Traits;
 
 use Illuminate\Support\Collection;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationContract;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationLoaderContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoaderContract;
 
 trait IsExternalModelRelated
 {

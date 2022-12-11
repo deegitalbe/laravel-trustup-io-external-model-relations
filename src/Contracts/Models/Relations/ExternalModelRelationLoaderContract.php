@@ -1,9 +1,9 @@
 <?php
-namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User;
+namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations;
 
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
 
 /**
  * Representing a loader able to lood several external relations at once.

@@ -1,9 +1,9 @@
 <?php
-namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Models\Relations\User;
+namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Models\Relations;
 
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
 use Illuminate\Support\Str;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User\ExternalModelRelationContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
 
 class ExternalModelRelation implements ExternalModelRelationContract
 {

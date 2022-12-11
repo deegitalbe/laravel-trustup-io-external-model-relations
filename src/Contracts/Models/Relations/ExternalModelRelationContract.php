@@ -1,5 +1,5 @@
 <?php
-namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\User;
+namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations;
 
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
 
