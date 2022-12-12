@@ -38,7 +38,7 @@ class Post extends Model implements ExternalModelRelatedModelContract
     }
 
     /**
-     * Defining contributors relation.
+     * Defining creator relation.
      * 
      * @return ExternalModelRelationContract
      */
@@ -58,7 +58,7 @@ class Post extends Model implements ExternalModelRelatedModelContract
     }
 
     /**
-     * Getting related contributors.
+     * Getting related creator.
      * 
      * @return ?ExternalModelContract
      */
