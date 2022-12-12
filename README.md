@@ -1,4 +1,4 @@
-# Laravel trustup io auth client
+# laravel-trustup-io-external-model-relations
 
 ## Installation
 
