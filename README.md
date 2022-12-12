@@ -8,8 +8,8 @@
 composer require deegitalbe/laravel-trustup-io-external-model-relations
 ```
 
-### Preparing your models (optional)
-If you have relationships with trustup users, your model should look like this
+### Preparing your models
+Your model having external relationships should look like this
 ```php
 <?php
 
@@ -95,7 +95,7 @@ class Post extends Model implements ExternalModelRelatedModelContract
 }
 ```
 
-### Exposing your models by creating a resource (optional)
+### Exposing your models by creating a resource
 If you wanna expose your model, here is an example resource based on previous section model
 ```php
 <?php
