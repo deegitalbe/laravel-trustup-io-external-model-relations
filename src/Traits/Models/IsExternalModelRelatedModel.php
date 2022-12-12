@@ -21,7 +21,7 @@ trait IsExternalModelRelatedModel
 
     public function initializeIsExternalModelRelatedModel()
     {
-        $this->getExternalRelationsCollection($this->getExternalRelations())
+        $this->getExternalRelationsCollection($this->getExternalRelationNames())
             ->each(function (ExternalModelRelationContract $relation) {
                 $this->fillable[] = $relation->getIdsProperty();
                 if (!$relation->isMultiple()) return;
