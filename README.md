@@ -8,6 +8,44 @@
 composer require deegitalbe/laravel-trustup-io-external-model-relations
 ```
 
+### Define a loader
+Each external relation should have its own loader that is implementing `ExternalModelRelationLoadingCallbackContract`.
+
+```php
+<?php
+namespace App\Models\Relations;
+
+use Deegitalbe\LaravelTrustupIoAuthClient\Contracts\Api\Endpoints\Auth\UserEndpointContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
+use Illuminate\Support\Collection;
+
+class TrustupUserRelationLoadingCallback implements ExternalModelRelationLoadingCallbackContract
+{
+    /**
+     * User endpoint.
+     * 
+     * @var UserEndpointContract
+     */
+    protected UserEndpointContract $endpoint;
+
+    /**
+     * Constructing instance.
+     * 
+     * @param UserEndpointContract $endpoint
+     * @return void
+     */
+    public function __construct(UserEndpointContract $endpoint)
+    {
+        $this->endpoint = $endpoint;
+    }
+
+    public function load(Collection $identifiers): Collection
+    {
+        return $this->endpoint->byIds($identifiers);
+    }
+}
+```
+
 ### Preparing your models
 Your model having external relationships should look like this
 ```php
@@ -18,6 +56,7 @@ namespace App\Models;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
+use App\Models\Relations\TrustupUserRelationLoadingCallback;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Traits\Models\IsExternalModelRelatedModel;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelRelatedModelContract;
@@ -44,7 +83,7 @@ class Post extends Model implements ExternalModelRelatedModelContract
      */
     public function creator(): ExternalModelRelationContract
     {
-        return $this->belongsToExternalModel('creator_id');
+        return $this->belongsToExternalModel(app()->make(TrustupUserRelationLoadingCallback::class), 'creator_id');
     }
 
     /**
@@ -54,7 +93,7 @@ class Post extends Model implements ExternalModelRelatedModelContract
      */
     public function getContributors(): Collection
     {
-        return $this->getExternalModels('contributors');
+        return $this->getExternalModels(app()->make(TrustupUserRelationLoadingCallback::class), 'contributors');
     }
 
     /**
