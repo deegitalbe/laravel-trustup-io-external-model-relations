@@ -67,13 +67,26 @@ class Post extends Model implements ExternalModelRelatedModelContract
     use IsExternalModelRelatedModel;
 
     /**
+     * Getting external relation names.
+     * 
+     * @return array<int, string>
+     */
+    public function getExternalRelationNames(): array
+    {
+        return [
+            'contributors',
+            'creator'
+        ];
+    }
+
+    /**
      * Defining contributors relation.
      * 
      * @return ExternalModelRelationContract
      */
     public function contributors(): ExternalModelRelationContract
     {
-        return $this->hasManyExternalModels('contributor_ids');
+        return $this->hasManyExternalModels(app()->make(TrustupUserRelationLoadingCallback::class), 'contributor_ids');
     }
 
     /**
@@ -93,7 +106,7 @@ class Post extends Model implements ExternalModelRelatedModelContract
      */
     public function getContributors(): Collection
     {
-        return $this->getExternalModels(app()->make(TrustupUserRelationLoadingCallback::class), 'contributors');
+        return $this->getExternalModels('contributors');
     }
 
     /**
