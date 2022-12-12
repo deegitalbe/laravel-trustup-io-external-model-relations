@@ -1,9 +1,12 @@
 <?php
 namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Models\Relations;
 
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
 use Illuminate\Support\Str;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class ExternalModelRelation implements ExternalModelRelationContract
 {
@@ -27,6 +30,13 @@ class ExternalModelRelation implements ExternalModelRelationContract
      * @return string
      */
     protected string $name;
+
+    /**
+     * Related model.
+     * 
+     * @return Model
+     */
+    protected Model $model;
 
     /**
      * Callback able to load external models.
@@ -91,5 +101,33 @@ class ExternalModelRelation implements ExternalModelRelationContract
         $this->callback = $callback;
 
         return $this;
+    }
+
+    public function getModel(): Model
+    {
+        return $this->model;
+    }
+
+    public function setModel(Model $model): ExternalModelRelationContract
+    {
+        $this->model = $model;
+
+        return $this;
+    }
+
+    public function setRelatedModelsByIds(Collection|int|string|null $ids): ExternalModelRelationContract
+    {
+        $this->model->{$this->getIdsProperty()} = $ids;
+        $this->model->save();
+
+        return $this;
+    }
+
+    public function setRelatedModels(Collection|ExternalModelContract|null $models): ExternalModelRelationContract
+    {
+        return $this->setRelatedModelsByIds($models instanceof Collection ?
+            $models
+            : collect($models)->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier())
+        );
     }
 }

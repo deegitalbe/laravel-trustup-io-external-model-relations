@@ -157,7 +157,8 @@ trait IsExternalModelRelatedModel
      */
     protected function newExternalModelRelation(): ExternalModelRelationContract
     {
-        return app()->make(ExternalModelRelationContract::class);
+        return app()->make(ExternalModelRelationContract::class)
+            ->setModel($this);
     }
 
     /**

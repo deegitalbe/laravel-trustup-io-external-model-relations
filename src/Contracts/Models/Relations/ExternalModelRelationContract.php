@@ -1,6 +1,9 @@
 <?php
 namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations;
 
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
 
 /**
@@ -67,4 +70,35 @@ interface ExternalModelRelationContract
      * @return static
      */
     public function setLoadingCallback(ExternalModelRelationLoadingCallbackContract $callback): ExternalModelRelationContract;
+
+    /**
+     * Getting related model.
+     * 
+     * @return Model
+     */
+    public function getModel(): Model;
+
+    /**
+     * Setting related model.
+     * 
+     * @param Model $model
+     * @return static
+     */
+    public function setModel(Model $model): ExternalModelRelationContract;
+
+    /**
+     * Saving related models.
+     * 
+     * @param Collection<int, ExternalModelContract>|?ExternalModelContract
+     * @return static
+     */
+    public function setRelatedModels(Collection|ExternalModelContract|null $models): ExternalModelRelationContract;
+
+    /**
+     * Saving related model ids.
+     * 
+     * @param Collection<int, int|string>|int|string|null
+     * @return static
+     */
+    public function setRelatedModelsByIds(Collection|int|string|null $ids): ExternalModelRelationContract;
 }

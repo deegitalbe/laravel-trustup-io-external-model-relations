@@ -8,13 +8,6 @@
 composer require deegitalbe/laravel-trustup-io-external-model-relations
 ```
 
-### Add environment variables
-
-```shell
-TRUSTUP_IO_AUTHENTIFICATION_URL=
-TRUSTUP_SERVER_AUTHORIZATION=
-```
-
 ### Preparing your models (optional)
 If you have relationships with trustup users, your model should look like this
 ```php
@@ -35,36 +28,13 @@ class Post extends Model implements ExternalModelRelatedModelContract
     use IsExternalModelRelatedModel;
 
     /**
-     * Related contributors.
-     * 
-     * @return Collection<int, ExternalModelContract>
-     */
-    public Collection $contributors;
-
-    /**
-     * Related creator.
-     * 
-     * @return ?UserContract
-     */
-    public ?UserContract $creator;
-
-    protected $fillable = [
-        'contributor_ids'
-        'creator_id'
-    ];
-
-    protected $casts =[
-        'contributor_ids' => AsCollection::class,
-    ];
-
-    /**
      * Defining contributors relation.
      * 
      * @return ExternalModelRelationContract
      */
-    public function trustupContributors(): ExternalModelRelationContract
+    public function contributors(): ExternalModelRelationContract
     {
-        return $this->hasManyTrustupUsers('contributor_ids');
+        return $this->hasManyExternalModels('contributor_ids');
     }
 
     /**
@@ -72,9 +42,9 @@ class Post extends Model implements ExternalModelRelatedModelContract
      * 
      * @return ExternalModelRelationContract
      */
-    public function trustupCreator(): ExternalModelRelationContract
+    public function creator(): ExternalModelRelationContract
     {
-        return $this->belongsToTrustupUser('creator_id');
+        return $this->belongsToExternalModel('creator_id');
     }
 
     /**
@@ -84,17 +54,43 @@ class Post extends Model implements ExternalModelRelatedModelContract
      */
     public function getContributors(): Collection
     {
-        return $this->getTrustupUsers('trustupContributors');
+        return $this->getExternalModels('contributors');
     }
 
     /**
      * Getting related contributors.
      * 
-     * @return ?UserContract
+     * @return ?ExternalModelContract
      */
-    public function getCreator(): ?UserContract
+    public function getCreator(): ?ExternalModelContract
     {
-        return $this->getTrustupUsers('trustupCreator');
+        return $this->getExternalModels('creator');
+    }
+
+    /**
+     * Setting related creator (OPTIONAL).
+     * 
+     * @param ?int $creatorId
+     * @return static
+     */
+    public function setCreator(?int $creatorId): self
+    {
+        $this->creator()->setRelatedModelsByIds($creatorId);
+
+        return $this;
+    }
+
+    /**
+     * Setting related contributors (OPTIONAL).
+     * 
+     * @param Collection<int, int> $contributorIds
+     * @return static
+     */ 
+    public function setContributors(Collection $contributorIds): self
+    {
+        $this->contributors()->setRelatedModelsByIds($contributorIds);
+
+        return $this;
     }
 }
 ```
@@ -107,6 +103,7 @@ If you wanna expose your model, here is an example resource based on previous se
 namespace App\Http\Resources;
 
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Resources\TrustupUserResource;
+use App\Resources\TrustupUserResource;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Resources\ExternalModelRelatedResource;
 
 class PostResource extends ExternalModelRelatedResource
@@ -124,8 +121,8 @@ class PostResource extends ExternalModelRelatedResource
             'title' => $this->title,
             'text' => $this->text,
             'created_at' => $this->created_at,
-            'contributors' => TrustupUserResource::collection($this->whenExternalModelsLoaded('trustupContributors')),
-            'creator' => new TrustupUserResource($this->whenExternalModelsLoaded('trustupCreator'))
+            'contributors' => TrustupUserResource::collection($this->whenExternalModelsLoaded('contributors')),
+            'creator' => new TrustupUserResource($this->whenExternalModelsLoaded('creator'))
         ];
     }
 }
@@ -140,250 +137,9 @@ use Illuminate\Routing\Controller;
 
 class PostController extends Controller
 {
-    public function index() 
+    public function index()
     {
-        return PostResource::collection(Post::all()->loadTrustupUsers('trustupContributors', 'trustupCreator'));
+        return PostResource::collection(Post::all()->loadExternalRelations('contributors', 'creator'));
     }
-}
-```
-
-
-## Usage
-
-### Endpoint
-```php
-<?php
-use Illuminate\Support\Collection;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Enums\Role;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Resources\TrustupUserResource;
-
-
-$endpoint = app()->make(UserEndpointContract::class);
-$devs = $endpoint->developers();   // Collection<int, ExternalModelContract>
-$resources = TrustupUserResource::collection($devs) // AnonymousResourceCollection<int, TrustupUserResource> (API resource for your responses)
-$devs->first()->getFirstName(); // Mathieu
-$devs->first()->hasRole(Role::TRANSLATOR) // false
-```
-
-## References
-### Endpoint
-
-```php
-interface UserEndpointContract
-{
-    /**
-     * Getting trustup employees.
-     * 
-     * @return Collection<int, ExternalModelContract>
-     */
-    public function employees(): Collection;
-
-    /**
-     * Getting trustup developers.
-     * 
-     * @return Collection<int, ExternalModelContract>
-     */
-    public function developers(): Collection;
-
-    /**
-     * Getting trustup users matching given roles.
-     * 
-     * @param Collection<int, Role>
-     * @return Collection<int, ExternalModelContract>
-     */
-    public function byRoles(Collection $roles): Collection;
-
-    /**
-     * Getting trustup users matching given ids.
-     * 
-     * @param Collection<int, Role>
-     * @return Collection<int, int>
-     */
-    public function byIds(Collection $ids): Collection;
-}
-```
-
-### Trustup user model
-```php
-interface ExternalModelContract
-{
-    /**
-     * Getting user id.
-     * 
-     * @return int
-     */
-    public function getId(): int;
-
-    /**
-     * Getting avatar as url.
-     * 
-     * @return string
-     */
-    public function getAvatar(): string;
-
-    /**
-     * Getting avatar as base64.
-     * 
-     * @return string
-     */
-    public function getBase64Avatar(): string;
-
-    /**
-     * Getting first name.
-     * 
-     * @return string
-     */
-    public function getFirstName(): string;
-
-    /**
-     * Getting last name.
-     * 
-     * @return string
-     */
-    public function getLastName(): string;
-
-    /**
-     * Getting email.
-     * 
-     * @return string
-     */
-    public function getEmail(): string;
-
-    /**
-     * Getting phone number (international format without country prefix)
-     * 
-     * @return string
-     */
-    public function getPhoneNumber(): ?string;
-
-    /**
-     * Getting user locale.
-     * 
-     * @return string
-     */
-    public function getLocale(): string;
-
-    /**
-     * Getting user slack id.
-     * 
-     * @return ?string
-     */
-    public function getSlackId(): ?string;
-
-    /**
-     * Telling if having slack id.
-     * 
-     * @return bool
-     */
-    public function hasSlackId(): bool;
-
-    /**
-     * Getting user roles.
-     * 
-     * @return Collection<int, Role>
-     */
-    public function getRoles(): Collection;
-
-    /**
-     * Telling if user is containing given role.
-     * 
-     * @param Role $role Role to check for
-     * @return bool
-     */
-    public function hasRole(Role $role): bool;
-
-    /**
-     * Telling if user is containing any of given roles.
-     * 
-     * @param Collection<int, Role> $roles Roles to check for
-     * @return bool
-     */
-    public function hasAnyRole(Collection $roles): bool;
-
-    /**
-     * Telling if user is containing all given roles.
-     * 
-     * @param Collection<int, Role> $roles Roles to check for
-     * @return bool
-     */
-    public function hasRoles(Collection $roles): bool;
-
-    /**
-     * Filling up model attributes.
-     * 
-     * @param array<string, mixed> $attributes
-     * @return static
-     */
-    public function fill(array $attributes): ExternalModelContract;
-}
-```
-
-### Model related to trustup users
-```php
-<?php
-/**
- * Representing a model related to trustup users.
- */
-interface ExternalModelRelatedModelContract
-{
-    /**
-     * Getting user relation.
-     * 
-     * You can expect ExternalModelContract|null for non-multiple relation or Collection<int, ExternalModelContract> for multiple relation.
-     * 
-     * @param string $relation Relation name to get
-     * @return ?ExternalModelContract|Collection<int, ExternalModelContract>
-     */
-    public function getTrustupUsers(string $relationName): mixed;
-
-    /**
-     * Loading given user relations.
-     * @param string $relationNames relation names to load.
-     * @return static
-     */
-    public function loadTrustupUsers(...$relationNames): ExternalModelRelatedModelContract;
-
-    /**
-     * Creating a new belongs to trustup user relation.
-     * 
-     * @param string $idProperty Model property containing related id.
-     * @param string $userProperty Model property where related user should be stored.
-     * @return ExternalModelRelationContract
-     */
-    public function belongsToTrustupUser(string $idProperty, string $userProperty = null): ExternalModelRelationContract;
-
-     /**
-     * Creating a new has many trustup users relation.
-     * 
-     * @param string $idsProperty Model property containing related ids.
-     * @param string $usersProperty Model property where related users should be stored.
-     * @return ExternalModelRelationContract
-     */
-    public function hasManyTrustupUsers(string $idsProperty, string $usersProperty = null): ExternalModelRelationContract;
-
-    /**
-     * Telling if trustup users relation is loaded.
-     * 
-     * @param string $relationName Relation name to check.
-     * @return bool
-     */
-    public function trustupUsersRelationLoaded(string $relationName): bool;
-
-    /**
-     * Getting trustup relations from given names.
-     * 
-     * @param array $relationNames Relation names to get
-     * @return Collection<int, ExternalModelRelationContract>
-     */
-    public function getExternalModelRelationCollection(array $relationNames): Collection;
-
-    /**
-     * Create a new Eloquent Collection instance.
-     *
-     * @param  array  $models
-     * @return ExternalModelRelatedCollectionContract
-     */
-    public function newCollection(array $models = []);
 }
 ```
