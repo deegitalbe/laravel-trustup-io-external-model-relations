@@ -4,6 +4,7 @@ namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Models\Relations;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelRelatedModelContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoaderContract;
 
@@ -46,7 +47,7 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
 
     public function load(): ExternalModelRelationLoaderContract
     {
-        $this->models->each(fn (Model $model) =>
+        $this->models->each(fn (ExternalModelRelatedModelContract $model) =>
             $this->getRelations()->each(fn (ExternalModelRelationContract $relation) =>
                 $this->setModelRelationExternalModels($model, $relation)    
             )
@@ -69,11 +70,11 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
     /**
      * Setting given model external models for given relation
      * 
-     * @param Model $model
+     * @param ExternalModelRelatedModelContract $model
      * @param ExternalModelRelationContract $relation
      * @return void
      */
-    protected function setModelRelationExternalModels(Model $model, ExternalModelRelationContract $relation): void
+    protected function setModelRelationExternalModels(ExternalModelRelatedModelContract $model, ExternalModelRelationContract $relation): void
     {
         $externalModels = $this->getModelRelationIdentifiers($model, $relation)
             ->reduce(fn (Collection $externalModels, int|string $externalModelIdentifier) =>
@@ -83,19 +84,22 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
                 collect()
             );
         
-        $model->externalRelations[$relation->getName()] = $relation->isMultiple() ?
-            $externalModels
-            : $externalModels->first();
+        $model->setExternalModels(
+            $relation,
+            $relation->isMultiple() ?
+                $externalModels
+                : $externalModels->first()
+        );
     }
 
     /**
      * Getting external model identifiers for given model and relation.
      * 
-     * @param Model $model
+     * @param ExternalModelRelatedModelContract $model
      * @param ExternalModelRelationContract $relation
      * @return Collection<int, int|string>
      */
-    protected function getModelRelationIdentifiers(Model $model, ExternalModelRelationContract $relation): Collection
+    protected function getModelRelationIdentifiers(ExternalModelRelatedModelContract $model, ExternalModelRelationContract $relation): Collection
     {
         $ids = $model->{$relation->getIdsProperty()};
 
@@ -122,7 +126,7 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
     {
         if (isset($this->{$relation->getIdsProperty()})) return $this->{$relation->getIdsProperty()};
 
-        return $this->{$relation->getIdsProperty()} = $this->models->reduce(fn (Collection $map, Model $model) =>
+        return $this->{$relation->getIdsProperty()} = $this->models->reduce(fn (Collection $map, ExternalModelRelatedModelContract $model) =>
             tap($map, fn () =>
                 $this->getRelations()->each(fn (ExternalModelRelationContract $relation) => 
                     $this->getModelRelationIdentifiers($model, $relation)

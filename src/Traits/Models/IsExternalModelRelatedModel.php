@@ -55,9 +55,22 @@ trait IsExternalModelRelatedModel
      * @param string $relation Relation name to get
      * @return ?ExternalModelContract|Collection<int, ExternalModelContract>
      */
-    public function getExternalModels(string $relationName): mixed
+    public function getExternalModels(string $relationName): ExternalModelContract|Collection|null
     {
         return $this->getExternalModelRelationModels($this->{$relationName}());
+    }
+
+    /**
+     * Setting given relation external models.
+     * 
+     * @param string $relationName
+     * @param ?ExternalModelContract|Collection<int, ExternalModelContract> $models
+     */
+    public function setExternalModels(ExternalModelRelationContract $relation, ExternalModelContract|Collection|null $models): ExternalModelRelatedModelContract
+    {
+        $this->externalRelations[$relation->getName()] = $models;
+
+        return $this;
     }
 
     /**
@@ -68,7 +81,7 @@ trait IsExternalModelRelatedModel
      */
     public function loadExternalRelations(...$relationNames): ExternalModelRelatedModelContract
     {
-        return $this->loadExternalModelRelations($this->getExternalModelRelationCollection($relationNames));
+        return $this->loadExternalModelRelations($this->getExternalRelationsCollection($relationNames));
     }
 
     /**

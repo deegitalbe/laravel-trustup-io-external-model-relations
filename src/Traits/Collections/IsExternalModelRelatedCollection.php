@@ -23,7 +23,7 @@ trait IsExternalModelRelatedCollection
     {
         if ($this->isEmpty()) return $this;
 
-        return $this->loadExternalModelRelations($this->first()->getExternalModelRelationCollection($relationNames));
+        return $this->loadExternalModelRelations($this->first()->getExternalRelationsCollection($relationNames));
     }
 
     /**

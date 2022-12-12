@@ -27,7 +27,15 @@ interface ExternalModelRelatedModelContract
      * @param string $relation Relation name to get
      * @return ?ExternalModelContract|Collection<int, ExternalModelContract>
      */
-    public function getExternalModels(string $relationName): mixed;
+    public function getExternalModels(string $relationName): ExternalModelContract|Collection|null;
+
+    /**
+     * Setting given relation external models.
+     * 
+     * @param string $relationName
+     * @param ?ExternalModelContract|Collection<int, ExternalModelContract> $models
+     */
+    public function setExternalModels(ExternalModelRelationContract $relation, ExternalModelContract|Collection|null $models): ExternalModelRelatedModelContract;
 
     /**
      * Loading external relations based on given relation names.
