@@ -101,4 +101,12 @@ interface ExternalModelRelationContract
      * @return static
      */
     public function setRelatedModelsByIds(Collection|int|string|null $ids): ExternalModelRelationContract;
+
+    /**
+     * Telling if relation is using same callback than given relation.
+     * 
+     * @param ExternalModelRelationContract $relation
+     * @return bool
+     */
+    public function isUsingSameCallback(ExternalModelRelationContract $relation): bool;
 }

@@ -128,14 +128,21 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
 
         return $this->{$relation->getIdsProperty()} = $this->models->reduce(fn (Collection $map, ExternalModelRelatedModelContract $model) =>
             tap($map, fn () =>
-                $this->getRelations()->each(fn (ExternalModelRelationContract $relation) => 
-                    $this->getModelRelationIdentifiers($model, $relation)
-                        ->each(fn (int|string $identifier) => $map[$identifier] = true)
-                )
+                $this->getRelations()
+                    // Getting all relations having same callback at once.
+                    ->filter(fn (ExternalModelRelationContract $relatedRelation) => 
+                        $relation->isUsingSameCallback($relatedRelation)
+                    )
+                    // Grouping all relation model ids together.
+                    ->each(fn (ExternalModelRelationContract $relation) => 
+                        $this->getModelRelationIdentifiers($model, $relation)
+                            ->each(fn (int|string $identifier) => $map[$identifier] = true)
+                    )
             ),
             collect()
         );
     }
+
 
     /**
      * Getting external models map matching given relation.
@@ -148,6 +155,17 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
     protected function getExternalModelsMap(ExternalModelRelationContract $relation): Collection
     {
         if (isset($this->{$relation->getName()})) return $this->{$relation->getName()};
+
+        $relatedRelations = $this->getRelations()
+            // Getting all relations having same callback at once.
+            ->filter(fn (ExternalModelRelationContract $relatedRelation) => 
+                $relation->isUsingSameCallback($relatedRelation)
+            );
+
+        // If any relation using same callback is already loaded, use it.
+        foreach ($relatedRelations as $relatedRelation):
+            if (isset($this->{$relatedRelation->getName()})) return $this->{$relatedRelation->getName()};
+        endforeach;
 
         $models = $relation->getLoadingCallback()->load($this->getExternalModelIdsMap($relation)->keys());
 

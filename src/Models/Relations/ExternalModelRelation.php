@@ -130,4 +130,9 @@ class ExternalModelRelation implements ExternalModelRelationContract
             : collect($models)->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier())
         );
     }
+
+    public function isUsingSameCallback(ExternalModelRelationContract $relation): bool
+    {
+        return get_class($this->getLoadingCallback()) === $relation->getLoadingCallback();
+    }
 }
