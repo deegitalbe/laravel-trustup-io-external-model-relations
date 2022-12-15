@@ -154,10 +154,8 @@ class ExternalModelRelationLoader implements ExternalModelRelationLoaderContract
      */
     protected function getExternalModelsMap(ExternalModelRelationContract $relation): Collection
     {
-        if (isset($this->{$relation->getName()})) return $this->{$relation->getName()};
-
+        // Getting all relations having same callback at once.
         $relatedRelations = $this->getRelations()
-            // Getting all relations having same callback at once.
             ->filter(fn (ExternalModelRelationContract $relatedRelation) => 
                 $relation->isUsingSameCallback($relatedRelation)
             );

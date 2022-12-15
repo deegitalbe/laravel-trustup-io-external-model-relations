@@ -133,6 +133,6 @@ class ExternalModelRelation implements ExternalModelRelationContract
 
     public function isUsingSameCallback(ExternalModelRelationContract $relation): bool
     {
-        return get_class($this->getLoadingCallback()) === $relation->getLoadingCallback();
+        return get_class($this->getLoadingCallback()) === get_class($relation->getLoadingCallback());
     }
 }
