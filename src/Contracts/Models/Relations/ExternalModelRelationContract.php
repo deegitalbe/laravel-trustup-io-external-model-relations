@@ -89,7 +89,7 @@ interface ExternalModelRelationContract
     /**
      * Saving related models.
      * 
-     * @param Collection<int, ExternalModelContract>|?ExternalModelContract
+     * @param Collection<int, ExternalModelContract>|?ExternalModelContract $models
      * @return static
      */
     public function setRelatedModels(Collection|ExternalModelContract|null $models): ExternalModelRelationContract;
@@ -97,7 +97,7 @@ interface ExternalModelRelationContract
     /**
      * Saving related model ids.
      * 
-     * @param Collection<int, int|string>|int|string|null
+     * @param Collection<int, int|string>|int|string|null $ids
      * @return static
      */
     public function setRelatedModelsByIds(Collection|int|string|null $ids): ExternalModelRelationContract;
