@@ -103,6 +103,22 @@ interface ExternalModelRelationContract
     public function setRelatedModelsByIds(Collection|int|string|null $ids): ExternalModelRelationContract;
 
     /**
+     * Adding given models to related models.
+     * 
+     * @param Collection<int, ExternalModelContract>|ExternalModelContract $models
+     * @return static
+     */
+    public function addToRelatedModels(Collection|ExternalModelContract $models): ExternalModelRelationContract;
+
+    /**
+     * Adding given identifiers to related model ids.
+     * 
+     * @param Collection<int, int|string>|int|string $ids
+     * @return static
+     */
+    public function addToRelatedModelsByIds(Collection|int|string $ids): ExternalModelRelationContract;
+
+    /**
      * Telling if relation is using same callback than given relation.
      * 
      * @param ExternalModelRelationContract $relation

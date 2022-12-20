@@ -132,6 +132,27 @@ class ExternalModelRelation implements ExternalModelRelationContract
         return $this->setRelatedModelsByIds($ids->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier()));
     }
 
+    public function addToRelatedModels(Collection|ExternalModelContract $models): ExternalModelRelationContract
+    {
+        $ids = $models instanceof Collection ? $models : collect($models);
+
+        return $this->addToRelatedModelsByIds($ids->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier()));
+    }
+
+    public function addToRelatedModelsByIds(Collection|int|string $ids): ExternalModelRelationContract
+    {
+        if (!$this->isMultiple()):
+            $this->model->{$this->getIdsProperty()} = $ids instanceof Collection ? $ids->first() : $ids;
+        else:
+            $this->model->{$this->getIdsProperty()} = ($this->model->{$this->getIdsProperty()} ?: collect())
+                ->push(...($ids instanceof Collection ? $ids : collect($ids)));
+        endif;
+
+        $this->model->save();
+
+        return $this;
+    }
+
     public function isUsingSameCallback(ExternalModelRelationContract $relation): bool
     {
         return get_class($this->getLoadingCallback()) === get_class($relation->getLoadingCallback());
