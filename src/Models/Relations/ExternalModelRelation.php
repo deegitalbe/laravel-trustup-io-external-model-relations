@@ -127,16 +127,18 @@ class ExternalModelRelation implements ExternalModelRelationContract
 
     public function setRelatedModels(Collection|ExternalModelContract|null $models): ExternalModelRelationContract
     {
-        $ids = $models instanceof Collection ? $models : collect($models);
-
-        return $this->setRelatedModelsByIds($ids->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier()));
+        return $this->setRelatedModelsByIds(
+            $this->formatRelatedModels($models)
+                ->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier())
+        );
     }
 
     public function addToRelatedModels(Collection|ExternalModelContract $models): ExternalModelRelationContract
     {
-        $ids = $models instanceof Collection ? $models : collect($models);
-
-        return $this->addToRelatedModelsByIds($ids->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier()));
+        return $this->addToRelatedModelsByIds(
+            $this->formatRelatedModels($models)
+                ->map(fn (ExternalModelContract $model) => $model->getExternalRelationIdentifier())
+        );
     }
 
     public function addToRelatedModelsByIds(Collection|int|string $ids): ExternalModelRelationContract
@@ -156,5 +158,20 @@ class ExternalModelRelation implements ExternalModelRelationContract
     public function isUsingSameCallback(ExternalModelRelationContract $relation): bool
     {
         return get_class($this->getLoadingCallback()) === get_class($relation->getLoadingCallback());
+    }
+
+    /**
+     * Formating given models.
+     * 
+     * @param Collection<int, ExternalModelContract>|ExternalModelContract|null $models
+     * @return Collection<int, ExternalModelContract>
+     */
+    protected function formatRelatedModels(Collection|ExternalModelContract|null $models): Collection
+    {
+        if (!$models) return collect();
+
+        if ($models instanceof Collection) return $models;
+
+        return collect([$models]);
     }
 }
