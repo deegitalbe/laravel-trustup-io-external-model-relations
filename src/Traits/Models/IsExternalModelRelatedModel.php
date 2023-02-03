@@ -4,13 +4,14 @@ namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Traits\Models;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Henrotaym\LaravelHelpers\Facades\Helpers;
+use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Traits\IsExternalModelRelated;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelRelatedModelContract;
-use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Collections\ExternalModelRelatedCollectionContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Collections\ExternalModelRelatedCollectionContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationSubscriberContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
-use Illuminate\Database\Eloquent\Casts\AsCollection;
 
 /**
  * Handling external relations.
@@ -19,15 +20,33 @@ trait IsExternalModelRelatedModel
 {
     use IsExternalModelRelated;
 
+    /**
+     * External relation names.
+     * 
+     * @var array<int, string>
+     */
+    protected $externalRelationNames = [];
+
+    /**
+     * Loaded external relations.
+     * 
+     * @var array<int, string>
+     */ 
+    protected array $externalRelations = [];
+
+    /**
+     * External relations subscriber.
+     * 
+     * @var ExternalModelRelationSubscriberContract
+     */
+    protected ExternalModelRelationSubscriberContract $externalModelRelationSubscriber;
+
     public function initializeIsExternalModelRelatedModel()
     {
         $this->getExternalRelationsCollection($this->getExternalRelationNames())
-            ->each(function (ExternalModelRelationContract $relation) {
-                $this->fillable[] = $relation->getIdsProperty();
-                if (!$relation->isMultiple()) return;
-
-                $this->casts[$relation->getIdsProperty()] = AsCollection::class;
-            });
+            ->each(fn (ExternalModelRelationContract $relation) =>
+                $this->getExternalModelRelationSubscriber()->register($relation)
+            );
     }
 
     /**
@@ -37,15 +56,8 @@ trait IsExternalModelRelatedModel
      */
     public function getExternalRelationNames(): array
     {
-        return [];
+        return $this->externalRelationNames;
     }
-
-    /**
-     * Loaded external relations.
-     * 
-     * @var array<int, string>
-     */ 
-    protected array $externalRelations = [];
 
     /**
      * Getting external models relation based on given relation name.
@@ -203,5 +215,16 @@ trait IsExternalModelRelatedModel
         $this->loadExternalModelRelation($relation);
 
         return $this->externalRelations[$relation->getName()];
+    }
+
+    /**
+     * Getting external relations subscriber.
+     * 
+     * @return ExternalModelRelationSubscriberContract
+     */
+    public function getExternalModelRelationSubscriber(): ExternalModelRelationSubscriberContract
+    {
+        return $this->externalModelRelationSubscriber ??
+            $this->externalModelRelationSubscriber = app()->make(ExternalModelRelationSubscriberContract::class)->setModel($this);
     }
 }

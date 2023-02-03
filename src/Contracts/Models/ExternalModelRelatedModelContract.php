@@ -6,6 +6,7 @@ use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalM
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Collections\ExternalModelRelatedCollectionContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationLoadingCallbackContract;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationContract;
+use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\Relations\ExternalModelRelationSubscriberContract;
 
 /**
  * Representing a model related to external models.
@@ -88,4 +89,11 @@ interface ExternalModelRelatedModelContract
      * @return ExternalModelRelatedCollectionContract
      */
     public function newCollection(array $models = []);
+
+    /**
+     * Getting external relations subscriber.
+     * 
+     * @return ExternalModelRelationSubscriberContract
+     */
+    public function getExternalModelRelationSubscriber(): ExternalModelRelationSubscriberContract;
 }
