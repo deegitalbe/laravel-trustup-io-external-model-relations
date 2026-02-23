@@ -1,0 +1,9 @@
+services:
+  cli:
+    build:
+      context: .
+      target: cli
+      dockerfile: Dockerfile
+    image: "laravel-trustup-io-external-model-relations-php-local"
+    volumes:
+      - ./:/opt/apps/app
