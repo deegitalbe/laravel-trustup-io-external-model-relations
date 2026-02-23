@@ -7,3 +7,11 @@ services:
     image: "laravel-trustup-io-external-model-relations-php-local"
     volumes:
       - ./:/opt/apps/app
+  bun:
+    build:
+      context: .
+      target: bun
+      dockerfile: Dockerfile
+    image: "laravel-trustup-io-external-model-relations-bun-local"
+    volumes:
+      - ./:/opt/apps/app
