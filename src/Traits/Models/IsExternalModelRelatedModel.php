@@ -3,7 +3,6 @@ namespace Deegitalbe\LaravelTrustupIoExternalModelRelations\Traits\Models;
 
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Henrotaym\LaravelHelpers\Facades\Helpers;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Traits\IsExternalModelRelated;
 use Deegitalbe\LaravelTrustupIoExternalModelRelations\Contracts\Models\ExternalModelContract;
@@ -146,9 +145,7 @@ trait IsExternalModelRelatedModel
         /** @var ExternalModelRelationContract */
         $relation = $this->{$relationName}();
 
-        [$error] = Helpers::try(fn () => $this->externalRelations[$relation->getName()]);
-
-        return !$error;
+        return array_key_exists($relation->getName(), $this->externalRelations);
     }
 
     /**
@@ -206,10 +203,8 @@ trait IsExternalModelRelatedModel
      */
     protected function getExternalModelRelationModels(ExternalModelRelationContract $relation): mixed
     {
-        [$error, $value] = Helpers::try(fn () => $this->externalRelations[$relation->getName()]);
-
-        if (!$error):
-            return $value;
+        if (array_key_exists($relation->getName(), $this->externalRelations)):
+            return $this->externalRelations[$relation->getName()];
         endif;
 
         $this->loadExternalModelRelation($relation);
