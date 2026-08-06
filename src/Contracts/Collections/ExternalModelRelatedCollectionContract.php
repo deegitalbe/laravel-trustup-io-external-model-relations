@@ -13,4 +13,12 @@ interface ExternalModelRelatedCollectionContract
      * @return static
      */
     public function loadExternalRelations(...$relationNames): ExternalModelRelatedCollectionContract;
+
+    /**
+     * Load external relations only on members that do not have them yet.
+     *
+     * @param string $relationNames relation names to load if missing.
+     * @return static
+     */
+    public function loadMissingExternalRelations(...$relationNames): ExternalModelRelatedCollectionContract;
 }

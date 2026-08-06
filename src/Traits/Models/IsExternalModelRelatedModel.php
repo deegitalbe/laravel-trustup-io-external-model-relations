@@ -96,6 +96,23 @@ trait IsExternalModelRelatedModel
     }
 
     /**
+     * Loading external relations that are not loaded yet.
+     *
+     * @param string $relationNames relation names to load if missing.
+     * @return static
+     */
+    public function loadMissingExternalRelations(...$relationNames): ExternalModelRelatedModelContract
+    {
+        $missing = collect($relationNames)
+            ->reject(fn (string $relationName) => $this->externalRelationLoaded($relationName))
+            ->values();
+
+        if ($missing->isEmpty()) return $this;
+
+        return $this->loadExternalModelRelations($this->getExternalRelationsCollection($missing->all()));
+    }
+
+    /**
      * Creating a new belongs to external models relation.
      * 
      * @param ExternalModelRelationLoadingCallbackContract $callback Callback able to load related models
